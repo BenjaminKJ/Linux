@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS clearance_offer;
-DROP TABLE IF EXISTS run;
-DROP TABLE IF EXISTS store;
+DROP TABLE IF EXISTS sg_store;
 
 CREATE TABLE sg_store (
   store_id CHAR(36) PRIMARY KEY,              -- store.id
@@ -20,20 +19,10 @@ CREATE TABLE sg_store (
                ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE run (
-  run_id INT AUTO_INCREMENT PRIMARY KEY,
-  run_time DATETIME NOT NULL,
-  source VARCHAR(50),
-  script_version VARCHAR(20),
-  comment VARCHAR(255)
-);
+DROP TABLE IF EXISTS clearance_offer;
 
 CREATE TABLE clearance_offer (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  run_id INT NOT NULL,
-  store_id CHAR(36) NOT NULL,
-  -- her kommer feltet "clearances" indhold – fx offer/product-felter,
-  -- jeg viser bare de klassiske:
   ean VARCHAR(20),
   currency VARCHAR(10),
   new_price DECIMAL(10,2),
@@ -44,11 +33,7 @@ CREATE TABLE clearance_offer (
   offer_start DATETIME,
   offer_end DATETIME,
   last_update DATETIME,
-
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-  CONSTRAINT fk_clearance_run
-    FOREIGN KEY (run_id) REFERENCES run(run_id),
-  CONSTRAINT fk_clearance_store
-    FOREIGN KEY (store_id) REFERENCES store(store_id)
+  FOREIGN KEY (store_id) REFERENCES sg_store(store_id)
 );
