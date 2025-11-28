@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS clearance_offer;
 DROP TABLE IF EXISTS sg_store;
+DROP TABLE IF EXISTS run;
 
 CREATE TABLE sg_store (
   store_id CHAR(36) PRIMARY KEY,              -- store.id
