@@ -33,7 +33,5 @@ CREATE TABLE clearance_offer (
   offer_start DATETIME,
   offer_end DATETIME,
   last_update DATETIME,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-  FOREIGN KEY (store_id) REFERENCES sg_store(store_id)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
