@@ -1,9 +1,13 @@
-CREATE TABLE store (
+DROP TABLE IF EXISTS clearance_offer;
+DROP TABLE IF EXISTS run;
+DROP TABLE IF EXISTS store;
+
+CREATE TABLE sg_store (
   store_id CHAR(36) PRIMARY KEY,              -- store.id
   brand VARCHAR(50),                          -- store.brand
   name VARCHAR(255),                          -- store.name
   type VARCHAR(50),                           -- store.type
-  coordinates VARCHAR(100),                   -- store.coordinates (fx "55.6,12.1")
+  coordinates VARCHAR(100),                   -- store.coordinates 
   hours TEXT,                                 -- store.hours (kompleks, så gemmes som text/JSON)
   city VARCHAR(100),                          -- store.address.city
   country VARCHAR(50),                        -- store.address.country
