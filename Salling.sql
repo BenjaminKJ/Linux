@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS sg_store;
 DROP TABLE IF EXISTS run;
 
 CREATE TABLE sg_store (
-  store.id CHAR(36) PRIMARY KEY,              -- store.id
+  `store.id` CHAR(36) PRIMARY KEY,              -- store.id
   brand VARCHAR(50),                          -- store.brand
   name VARCHAR(255),                          -- store.name
   type VARCHAR(50),                           -- store.type
@@ -21,7 +21,7 @@ DROP TABLE IF EXISTS clearance_offer;
 
 CREATE TABLE clearance_offer (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  store.id CHAR(36),
+  `store.id` CHAR(36),
   ean VARCHAR(20),
   currency VARCHAR(10),
   new_price DECIMAL(10,2),
