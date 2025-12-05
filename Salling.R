@@ -3,6 +3,7 @@ library(jsonlite)
 library(dplyr)
 library(RMariaDB)
 library(purrr)
+library(DBI)
 
 ###### NOTE "sådan opdater man en database i git." ####### 
 
@@ -10,7 +11,7 @@ library(purrr)
 # start, husk at ændre IP adressen på MySQL, con_salling og inde i terminalen den nye når man launcher instance.
 
 ## 2 - push fra R. terminal til linux 
-# git add Salling.sql eller tryki toppen "hvor man gemmer" der er der et +- tegn 
+# git add Salling.sql eller tryk i toppen "hvor man gemmer" der er der et +- tegn 
 # git commit -m "Tilføjet Salling.sql" 
 # git push 
 
@@ -26,7 +27,7 @@ library(purrr)
 zip_code        <- "4000"
 target_store_id <- "769204f1-d8e4-41fb-8b9c-0b8b8f885376"
 
-api_token  <- "SG_APIM_C353C47PX656P7RDXYJJBP5458RB7AHY93RFNEJ7G8N6NC70V27G"      
+api_token  <- "SG_APIM_C353C47PX656P7RDXYJJBP5458RB7AHY93RFNEJ7G8N6NC70V27G"      # <- indsæt din rigtige token
 
 url <- paste0("https://api.sallinggroup.com/v1/food-waste/?zip=", zip_code)
 
@@ -34,73 +35,54 @@ res <- GET(
   url,
   add_headers(Authorization = paste("Bearer", api_token))
 )
+stopifnot(status_code(res) == 200)
+
 raw <- content(res, "text", encoding = "UTF-8")
 
-####### Roskilde #######
+####### HENT OG FLET DATA #######
 
 df  <- fromJSON(raw, flatten = TRUE)
 
+# liste med tilbud pr. butik
 offers <- df$clearances
 
-for (i in 1:length(offers)) {
-  names(offers)[i] <- df[i, 2]
+# brug store.id som navn på hvert liste-element
+names(offers) <- df$`store.id`
+
+# skriv store.id ind som kolonne i hver offers-tabel
+for (i in seq_along(offers)) {
+  offers[[i]]$`store.id` <- names(offers)[i]
 }
 
-for (i in 1:length(offers)) {
-  offers[[i]]$store_id <- names(offers)[i]
-}
-
-df_offer <- do.call(rbind, offers)
+# bind alle tilbud sammen til én dataframe
+df_offer <- dplyr::bind_rows(offers)
 rownames(df_offer) <- NULL
 
-str(df, max.level = 1)
-
+# lille oversigt over butikker (valgfri)
 stores <- df %>%
-  select(store.id, store.name, store.address.street) %>%
+  select(`store.id`, store.name, store.address.street) %>%
   distinct()
 
+# kun tilbud fra én butik (valgfri)
 netto_roskilde <- df_offer %>%
-  filter(store_id == target_store_id)
+  filter(`store.id` == target_store_id)
 
-df_stores <- df[, c(
-  "store.id",
-  "store.brand",
-  "store.coordinates",
-  "store.hours",
-  "store.name",
-  "store.type",
-  "store.address.city",
-  "store.address.country",
-  "store.address.extra",
-  "store.address.street",
-  "store.address.zip"
-)]
-
-df_stores <- df_stores %>%
-  filter(store.id == target_store_id)
-
-df_stores <- df_stores[, !names(df_stores) %in% c(
-  "store.coordinates",
-  "store.hours",
-  "store.address.extra"
-)]
-
-####### SQL connection
+####### SQL CONNECTION #######
 
 con_salling <- dbConnect(
   MariaDB(),
   host     = "13.53.212.33",
   dbname   = "Salling_store",
   user     = "dalremote",
-  password = "Benja#1998"
+  password = "Benja#1998"   # <- indsæt dit rigtige password
 )
 
-####### STORES – LAV REN DF_STORES FRA DF #######
+####### SG_STORE – KUN ÉN BUTIK, KUN store.id #######
 
 df_stores <- df %>%
-  filter(store.id == target_store_id) %>%
+  filter(`store.id` == target_store_id) %>%
   transmute(
-    store_id           = store.id,            # nyt navn
+    `store.id`,
     store.brand,
     store.name,
     store.type,
@@ -117,16 +99,15 @@ df_stores <- df %>%
     )
   )
 
-
 dbWriteTable(
   con_salling,
   name      = "sg_store",
   value     = df_stores,
-  overwrite = TRUE,
+  overwrite = TRUE,   # SMADR og genskab tabellen
   row.names = FALSE
 )
 
-####### CLEARANCE DATAFRAME – RENS + MATCH TIL SQL #######
+####### CLEARANCE_DATAFRAME – MED store.id #######
 
 clearance_df <- df_offer %>%
   distinct() %>%
@@ -155,7 +136,7 @@ clearance_df <- df_offer %>%
   ) %>%
   # 3) vælg de kolonner, der matcher din SQL-tabel
   transmute(
-    store_id         = store_id,
+    `store.id`,
     ean              = product.ean,
     currency         = offer.currency,
     new_price        = offer.newPrice,
@@ -171,7 +152,9 @@ clearance_df <- df_offer %>%
 dbWriteTable(
   con_salling,
   name      = "clearance_offer",
-  value     = clearance_df,   
+  value     = clearance_df,
   append    = TRUE,
   row.names = FALSE
 )
+
+dbDisconnect(con_salling)
