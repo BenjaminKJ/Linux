@@ -21,7 +21,7 @@ DROP TABLE IF EXISTS clearance_offer;
 
 CREATE TABLE clearance_offer (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  store_id` CHAR(36),
+  store_id CHAR(36),
   ean VARCHAR(20),
   currency VARCHAR(10),
   new_price DECIMAL(10,2),
