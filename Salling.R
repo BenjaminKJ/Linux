@@ -130,6 +130,7 @@ clearance_df <- netto_roskilde %>%
     percent_discount = offer.percentDiscount,
     stock            = offer.stock,
     stock_unit       = offer.stockUnit,
+    product_desc.    = product.description,
     offer_start,
     offer_end,
     last_update
