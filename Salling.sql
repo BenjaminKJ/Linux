@@ -7,11 +7,8 @@ CREATE TABLE sg_store (
   brand VARCHAR(50),                          -- store.brand
   name VARCHAR(255),                          -- store.name
   type VARCHAR(50),                           -- store.type
-  coordinates VARCHAR(100),                   -- store.coordinates 
-  hours TEXT,                                 -- store.hours (kompleks, så gemmes som text/JSON)
   city VARCHAR(100),                          -- store.address.city
   country VARCHAR(50),                        -- store.address.country
-  extra VARCHAR(255),                         -- store.address.extra
   street VARCHAR(255),                        -- store.address.street
   zip VARCHAR(10),                            -- store.address.zip
 
