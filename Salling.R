@@ -95,18 +95,20 @@ con_salling <- dbConnect(
   password = "Benja#1998"
 )
 
-df_stores <- df_stores %>%
-  rename(store_id = store.id) %>%
-  select(all_of(c(
-    "store_id",
-    "store.brand",
-    "store.name",
-    "store.type",
-    "store.address.city",
-    "store.address.country",
-    "store.address.street",
-    "store.address.zip"
-  ))) %>%
+####### STORES – LAV REN DF_STORES FRA DF #######
+
+df_stores <- df %>%
+  filter(store.id == target_store_id) %>%
+  transmute(
+    store_id           = store.id,            # nyt navn
+    store.brand,
+    store.name,
+    store.type,
+    store.address.city,
+    store.address.country,
+    store.address.street,
+    store.address.zip
+  ) %>%
   distinct() %>%
   mutate(
     across(
@@ -115,11 +117,12 @@ df_stores <- df_stores %>%
     )
   )
 
+
 dbWriteTable(
   con_salling,
   name      = "sg_store",
-  value     = df_stores,   # eller stores_df med alle 6
-  overwrite = TRUE,        # SMADR og genskab
+  value     = df_stores,
+  overwrite = TRUE,
   row.names = FALSE
 )
 
@@ -172,8 +175,3 @@ dbWriteTable(
   append    = TRUE,
   row.names = FALSE
 )
-
-dbGetQuery(con_salling, "SELECT DATABASE()")
-dbGetQuery(con_salling, "SHOW TABLES")
-dbGetQuery(con_salling, "DESC clearance_offer")
-dbGetQuery(con_salling, "DESC sg_store")
