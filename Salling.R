@@ -96,25 +96,21 @@ con_salling <- dbConnect(
 )
 
 df_stores <- df_stores %>%
-  rename(
-    store_id = store.id
-  )
-names(df_stores)
-df_stores <- df_stores %>%
-  select(
-    store_id,
-    store.brand,
-    store.name,
-    store.type,
-    store.address.city,
-    store.address.country,
-    store.address.street,
-    store.address.zip
-  ) %>%
+  rename(store_id = store.id) %>%
+  select(all_of(c(
+    "store_id",
+    "store.brand",
+    "store.name",
+    "store.type",
+    "store.address.city",
+    "store.address.country",
+    "store.address.street",
+    "store.address.zip"
+  ))) %>%
   distinct() %>%
   mutate(
     across(
-      where(is.list), 
+      where(is.list),
       ~ jsonlite::toJSON(.x, auto_unbox = TRUE)
     )
   )
