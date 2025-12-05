@@ -64,7 +64,7 @@ con_salling <- dbConnect(
 df_stores <- df %>%
   filter(`store.id` == target_store_id) %>%
   transmute(
-    store_id = `store.id`,          # <-- navn til DB
+    store_id = `store.id`,          # ← nyt navn til DB
     brand    = store.brand,
     name     = store.name,
     type     = store.type,
@@ -73,13 +73,7 @@ df_stores <- df %>%
     street   = store.address.street,
     zip      = store.address.zip
   ) %>%
-  distinct() %>%
-  mutate(
-    across(
-      where(is.list),
-      ~ jsonlite::toJSON(.x, auto_unbox = TRUE)
-    )
-  )
+  distinct()
 
 dbWriteTable(
   con_salling,
@@ -135,7 +129,3 @@ dbWriteTable(
   append    = TRUE,
   row.names = FALSE
 )
-
-dbGetQuery(con_salling, "DESC sg_store")
-dbGetQuery(con_salling, "DESC clearance_offer")
-
