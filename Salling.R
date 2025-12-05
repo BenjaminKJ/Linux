@@ -5,13 +5,7 @@ library(RMariaDB)
 library(purrr)
 library(DBI)
 
-###### NOTE "sådan opdater man en database i git." ####### 
-## 1 - IP adresse
-## 2 - git add/commit/push Salling.sql
-## 3 - git pull på mac + mysql -u root -p --database=Salling_store < Salling.sql
-## 4 - opdater MySQL via dette script
-
-####### KONFIG #######
+###### KONFIG #######
 zip_code        <- "4000"
 target_store_id <- "769204f1-d8e4-41fb-8b9c-0b8b8f885376"
 
@@ -37,7 +31,7 @@ offers <- df$clearances
 # brug store.id som navn på hvert liste-element
 names(offers) <- df$`store.id`
 
-# skriv store_id ind som kolonne i hver offers-tabel (IKKE store.id)
+# skriv store_id ind som kolonne i hver offers-tabel
 for (i in seq_along(offers)) {
   offers[[i]]$store_id <- names(offers)[i]
 }
@@ -65,12 +59,12 @@ con_salling <- dbConnect(
   password = "Benja#1998"
 )
 
-####### SG_STORE – KUN ÉN BUTIK #######
+####### SG_STORE – KUN store_id #######
 
 df_stores <- df %>%
   filter(`store.id` == target_store_id) %>%
   transmute(
-    store_id = `store.id`,      # <-- navn til DB
+    store_id = `store.id`,          # <-- navn til DB
     brand    = store.brand,
     name     = store.name,
     type     = store.type,
@@ -99,13 +93,11 @@ dbWriteTable(
 
 clearance_df <- df_offer %>%
   distinct() %>%
-  # 1) alle listekolonner -> JSON-tekst
   mutate(
     across(
       where(is.list),
       ~ map_chr(.x, ~ jsonlite::toJSON(.x, auto_unbox = TRUE))
     ),
-    # 2) konverter tidspunkter fra "2025-11-27T05:59:43.000Z"
     offer_start = as.POSIXct(
       offer.startTime,
       format = "%Y-%m-%dT%H:%M:%OSZ",
@@ -122,9 +114,8 @@ clearance_df <- df_offer %>%
       tz = "UTC"
     )
   ) %>%
-  # 3) vælg de kolonner, der matcher din SQL-tabel
   transmute(
-    store_id,                              # <-- matcher DB
+    store_id,                        # <-- matcher DB
     ean              = product.ean,
     currency         = offer.currency,
     new_price        = offer.newPrice,
@@ -144,3 +135,7 @@ dbWriteTable(
   append    = TRUE,
   row.names = FALSE
 )
+
+dbGetQuery(con_salling, "DESC sg_store")
+dbGetQuery(con_salling, "DESC clearance_offer")
+
