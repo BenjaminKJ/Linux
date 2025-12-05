@@ -6,28 +6,16 @@ library(purrr)
 library(DBI)
 
 ###### NOTE "sådan opdater man en database i git." ####### 
-
 ## 1 - IP adresse
-# start, husk at ændre IP adressen på MySQL, con_salling og inde i terminalen den nye når man launcher instance.
-
-## 2 - push fra R. terminal til linux 
-# git add Salling.sql eller tryk i toppen "hvor man gemmer" der er der et +- tegn 
-# git commit -m "Tilføjet Salling.sql" 
-# git push 
-
-## 3 - pull i terminalen på mac 
-# git pull
-# ls -la for at se om den rigtige sql er der
-# history  
-# mysql -u root -p --database=Salling_store < Salling.sql - samme måde bruges til at lave en database i linux
-
-## 4 - opdater MySQL 
+## 2 - git add/commit/push Salling.sql
+## 3 - git pull på mac + mysql -u root -p --database=Salling_store < Salling.sql
+## 4 - opdater MySQL via dette script
 
 ####### KONFIG #######
 zip_code        <- "4000"
 target_store_id <- "769204f1-d8e4-41fb-8b9c-0b8b8f885376"
 
-api_token  <- "SG_APIM_C353C47PX656P7RDXYJJBP5458RB7AHY93RFNEJ7G8N6NC70V27G"      # <- indsæt din rigtige token
+api_token  <- "SG_APIM_C353C47PX656P7RDXYJJBP5458RB7AHY93RFNEJ7G8N6NC70V27G"
 
 url <- paste0("https://api.sallinggroup.com/v1/food-waste/?zip=", zip_code)
 
@@ -49,9 +37,9 @@ offers <- df$clearances
 # brug store.id som navn på hvert liste-element
 names(offers) <- df$`store.id`
 
-# skriv store.id ind som kolonne i hver offers-tabel
+# skriv store_id ind som kolonne i hver offers-tabel (IKKE store.id)
 for (i in seq_along(offers)) {
-  offers[[i]]$`store.id` <- names(offers)[i]
+  offers[[i]]$store_id <- names(offers)[i]
 }
 
 # bind alle tilbud sammen til én dataframe
@@ -65,31 +53,31 @@ stores <- df %>%
 
 # kun tilbud fra én butik (valgfri)
 netto_roskilde <- df_offer %>%
-  filter(`store.id` == target_store_id)
+  filter(store_id == target_store_id)
 
 ####### SQL CONNECTION #######
 
 con_salling <- dbConnect(
   MariaDB(),
-  host     = "13.53.212.33",
+  host     = "51.20.31.224",
   dbname   = "Salling_store",
   user     = "dalremote",
-  password = "Benja#1998"   # <- indsæt dit rigtige password
+  password = "Benja#1998"
 )
 
-####### SG_STORE – KUN ÉN BUTIK, KUN store.id #######
+####### SG_STORE – KUN ÉN BUTIK #######
 
 df_stores <- df %>%
   filter(`store.id` == target_store_id) %>%
   transmute(
-    `store.id`,
-    store.brand,
-    store.name,
-    store.type,
-    store.address.city,
-    store.address.country,
-    store.address.street,
-    store.address.zip
+    store_id = `store.id`,      # <-- navn til DB
+    brand    = store.brand,
+    name     = store.name,
+    type     = store.type,
+    city     = store.address.city,
+    country  = store.address.country,
+    street   = store.address.street,
+    zip      = store.address.zip
   ) %>%
   distinct() %>%
   mutate(
@@ -103,11 +91,11 @@ dbWriteTable(
   con_salling,
   name      = "sg_store",
   value     = df_stores,
-  overwrite = TRUE,   # SMADR og genskab tabellen
+  overwrite = TRUE,
   row.names = FALSE
 )
 
-####### CLEARANCE_DATAFRAME – MED store.id #######
+####### CLEARANCE_DATAFRAME – MED store_id #######
 
 clearance_df <- df_offer %>%
   distinct() %>%
@@ -136,7 +124,7 @@ clearance_df <- df_offer %>%
   ) %>%
   # 3) vælg de kolonner, der matcher din SQL-tabel
   transmute(
-    `store.id`,
+    store_id,                              # <-- matcher DB
     ean              = product.ean,
     currency         = offer.currency,
     new_price        = offer.newPrice,
@@ -156,5 +144,3 @@ dbWriteTable(
   append    = TRUE,
   row.names = FALSE
 )
-
-dbDisconnect(con_salling)
