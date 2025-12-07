@@ -3,21 +3,18 @@ DROP TABLE IF EXISTS sg_store;
 DROP TABLE IF EXISTS run;
 
 CREATE TABLE sg_store (
-  store_id CHAR(36) PRIMARY KEY,              -- store.id
-  brand VARCHAR(50),                          -- store.brand
-  name VARCHAR(255),                          -- store.name
-  type VARCHAR(50),                           -- store.type
-  city VARCHAR(100),                          -- store.address.city
-  country VARCHAR(50),                        -- store.address.country
-  street VARCHAR(255),                        -- store.address.street
-  zip VARCHAR(10),                            -- store.address.zip
-
+  store_id CHAR(36) PRIMARY KEY,
+  brand    VARCHAR(50),
+  name     VARCHAR(255),
+  type     VARCHAR(50),
+  city     VARCHAR(100),
+  country  VARCHAR(50),
+  street   VARCHAR(255),
+  zip      VARCHAR(10),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-               ON UPDATE CURRENT_TIMESTAMP
+             ON UPDATE CURRENT_TIMESTAMP
 );
-
-DROP TABLE IF EXISTS clearance_offer;
 
 CREATE TABLE clearance_offer (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,7 +22,7 @@ CREATE TABLE clearance_offer (
   ean VARCHAR(20),
   currency VARCHAR(10),
   new_price DECIMAL(10,2),
-  product_desc TEXT(50),
+  product_desc TEXT,              -- matcher R-kolonnen
   original_price DECIMAL(10,2),
   percent_discount DECIMAL(5,2),
   stock INT,
