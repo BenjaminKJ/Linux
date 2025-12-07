@@ -117,8 +117,6 @@ clearance_df <- netto_roskilde %>%
     last_update
   )
 
-colnames(clearance_df)
-
 dbWriteTable(
   con_salling,
   name      = "clearance_offer",
