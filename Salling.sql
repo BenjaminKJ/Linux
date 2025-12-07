@@ -25,7 +25,7 @@ CREATE TABLE clearance_offer (
   ean VARCHAR(20),
   currency VARCHAR(10),
   new_price DECIMAL(10,2),
-  product_desc VARCHAR(20),
+  product_desc TEXT(50),
   original_price DECIMAL(10,2),
   percent_discount DECIMAL(5,2),
   stock INT,
