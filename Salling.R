@@ -7,7 +7,9 @@ library(DBI)
 
 ###### KONFIG #######
 zip_code        <- "4000"
-target_store_id <- "769204f1-d8e4-41fb-8b9c-0b8b8f885376"
+target_store_id <- c("769204f1-d8e4-41fb-8b9c-0b8b8f885376",
+                     "4d99a744-8087-44ff-b576-4bb0f6bb6ff4",
+                     "e98ce884-e2fa-47d7-9cf9-d78d0fc2aa88")
 api_token       <- "SG_APIM_C353C47PX656P7RDXYJJBP5458RB7AHY93RFNEJ7G8N6NC70V27G"
 
 url <- paste0("https://api.sallinggroup.com/v1/food-waste/?zip=", zip_code)
@@ -47,7 +49,7 @@ netto_roskilde <- df_offer %>%
 
 con_salling <- dbConnect(
   MariaDB(),
-  host     = "13.60.28.171",
+  host     = "localhost",
   dbname   = "Salling_store",
   user     = "dalremote",
   password = "Benja#1998"
