@@ -49,7 +49,7 @@ netto_roskilde <- df_offer %>%
 
 con_salling <- dbConnect(
   MariaDB(),
-  host     = "localhost",
+  host     = "lacoalhost",
   dbname   = "Salling_store",
   user     = "dalremote",
   password = "Benja#1998"
@@ -58,7 +58,7 @@ con_salling <- dbConnect(
 ####### SG_STORE – 1 række for butikken #######
 
 df_stores <- df %>%
-  filter(`store.id` == target_store_id) %>%
+  filter(`store.id` %in% target_store_id) %>%
   transmute(
     store_id = `store.id`,
     brand    = store.brand,
