@@ -22,7 +22,7 @@ CREATE TABLE clearance_offer (
   ean VARCHAR(20),
   currency VARCHAR(10),
   new_price DECIMAL(10,2),
-  product_desc VARCHAR(200),              -- matcher R-kolonnen
+  product_desc VARCHAR(200),              
   original_price DECIMAL(10,2),
   percent_discount DECIMAL(5,2),
   stock INT,
@@ -31,4 +31,8 @@ CREATE TABLE clearance_offer (
   offer_end DATETIME,
   last_update DATETIME,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  
+  CONSTRAINT fk_store
+    FOREIGN KEY (store_id)
+    REFERENCES sg_store(store_id)
 );
