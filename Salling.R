@@ -43,7 +43,7 @@ rownames(df_offer) <- NULL
 
 # kun tilbud fra én butik
 netto_roskilde <- df_offer %>%
-  filter(store_id == target_store_id)
+  filter(store_id %in% target_store_id)
 
 ####### SQL CONNECTION #######
 
@@ -75,7 +75,7 @@ dbWriteTable(
   con_salling,
   name      = "sg_store",
   value     = df_stores,
-  overwrite = TRUE,
+  append    = TRUE,
   row.names = FALSE
 )
 
@@ -120,8 +120,6 @@ clearance_df <- netto_roskilde %>%
     last_update
   )
 
-names(df_offer)
-
 dbWriteTable(
   con_salling,
   name      = "clearance_offer",
@@ -129,3 +127,4 @@ dbWriteTable(
   append    = TRUE,
   row.names = FALSE
 )
+
