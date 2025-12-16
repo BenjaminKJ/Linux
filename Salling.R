@@ -38,7 +38,7 @@ for (i in seq_along(offers)) {
 }
 
 # bind alle tilbud sammen til én dataframe
-df_offer <- dplyr::bind_rows(offers)
+df_offer <- do.call(rbind, offers)
 rownames(df_offer) <- NULL
 
 # kun tilbud fra én butik
@@ -49,7 +49,7 @@ netto_roskilde <- df_offer %>%
 
 con_salling <- dbConnect(
   MariaDB(),
-  host     = "16.171.133.64",
+  host     = "13.49.241.219",
   dbname   = "Salling_store",
   user     = "dalremote",
   password = "Benja#1998"
@@ -113,11 +113,14 @@ clearance_df <- netto_roskilde %>%
     percent_discount = offer.percentDiscount,
     stock            = offer.stock,
     stock_unit       = offer.stockUnit,
-    product_desc     = product.description,  # ← UDEN punktum
+    product_desc     = product.description,
+    product_cat     = product.categories.da,
     offer_start,
     offer_end,
     last_update
   )
+
+names(df_offer)
 
 dbWriteTable(
   con_salling,
