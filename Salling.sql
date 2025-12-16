@@ -18,7 +18,7 @@ CREATE TABLE sg_store (
 
 CREATE TABLE clearance_offer (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  store_id CHAR(36),
+  store_id CHAR(36) NOT NULL,
   ean VARCHAR(20),
   currency VARCHAR(10),
   new_price DECIMAL(10,2),
@@ -31,7 +31,7 @@ CREATE TABLE clearance_offer (
   offer_start DATETIME,
   offer_end DATETIME,
   last_update DATETIME,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   
   CONSTRAINT fk_store
     FOREIGN KEY (store_id)
